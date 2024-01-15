@@ -1,48 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 const CheckoutForm = () => {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
+  const [clientSecret, setClientSecret] = useState('');
 
-  const handleSubmit = async (event) => {
+  useEffect(() => {
+    // Fetch the client secret from your server when the component mounts
+    fetch('http://localhost:8000/api/get-client-secret', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ amount: 1000 }), // Adjust the amount as needed
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setClientSecret(data.clientSecret);
+      })
+      .catch((error) => {
+        console.error('Error fetching client secret:', error);
+      });
+  }, []);
+// ... (previous code)
+
+const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     setLoading(true);
-
-    const { paymentMethod, error } = await stripe.createPaymentMethod({
-      type: 'card',
-      card: elements.getElement(CardElement),
-    });
-
-    if (error) {
-      console.error(error);
-    } else {
-      // Send paymentMethod.id to your server for further processing
-      await handlePayment(paymentMethod.id);
-    }
-
-    setLoading(false);
-  };
-
-  const handlePayment = async (paymentMethodId) => {
+  
     try {
-      const response = await fetch('http://localhost:8000/api/charge', {
+      // Fetch the client secret from the server
+      const response = await fetch('http://localhost:8000/api/get-client-secret', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ payment_method: paymentMethodId, amount: 1000 }), // Adjust the amount as needed
+        body: JSON.stringify({ amount: 1000 }), // Adjust the amount as needed
       });
-
-      const result = await response.json();
-
-      console.log(result); // Log the server response
+  
+      const { clientSecret } = await response.json();
+  
+      // Use the client secret to confirm the PaymentIntent
+      const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+        },
+      });
+  
+      if (error) {
+        console.error(error);
+        setLoading(false);
+      } else {
+        // Handle the paymentIntent status as needed
+        console.log('PaymentIntent status:', paymentIntent.status);
+        setLoading(false);
+      }
     } catch (error) {
       console.error('Error processing payment:', error);
+      setLoading(false);
     }
   };
+  
+  // ... (rest of the code)
+  
 
   return (
     <form onSubmit={handleSubmit}>

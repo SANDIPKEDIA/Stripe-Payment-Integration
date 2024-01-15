@@ -72,6 +72,38 @@ app.post('/api/charge', async (req, res) => {
     }
   });
   
+  app.post('/api/get-client-secret', async (req, res) => {
+    try {
+      const { amount } = req.body;
+  
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        confirmation_method: 'automatic',
+      });
+  
+      const clientSecret = paymentIntent.client_secret;
+      return res.status(200).json({ clientSecret });
+    } catch (error) {
+      console.error('Error creating PaymentIntent:', error.message);
+      return res.status(500).json({ error: 'Error creating PaymentIntent' });
+    }
+  });
+  app.post('/api/confirm-payment', async (req, res) => {
+    try {
+      const { paymentIntentId } = req.body;
+  
+      // Use the secret key to confirm the PaymentIntent
+      const paymentIntent = await stripe.paymentIntents.confirm(paymentIntentId);
+  
+      // Handle the paymentIntent status (success, requires_action, etc.)
+      return res.status(200).json({ success: true, paymentIntent });
+    } catch (error) {
+      console.error('Error confirming PaymentIntent:', error.message);
+      return res.status(500).json({ error: 'Error confirming PaymentIntent' });
+    }
+  });
+  
   
 app.listen(8000, () => {
   console.log("SERVER LISTEING SUCCESS!---✅✅✅✅✅8000");
