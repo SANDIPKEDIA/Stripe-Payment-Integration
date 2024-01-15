@@ -1,13 +1,15 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const bodyParser = require('body-parser');
+
 // This is your test secret API key.
 const stripe = require("stripe")(
   "sk_test_51OYkIDSCKn8fzfthlcrkJt1mcy12j7LK4uqkw4nl0JjIrga1HMpERAPVs6t7hRgNSEWu9HbSlj2hZZ8uVMVibTvL00N9Q3qf65"
 );
 app.use(express.json());
 app.use(cors());
-
+app.use(bodyParser.json());
 
 //checkout api
 app.post("/api/create-checkout-session", async (req, res) => {
@@ -48,6 +50,29 @@ app.post("/api/create-checkout-session", async (req, res) => {
   return res.json({ id: session.id });
 });
 
+app.post('/api/charge', async (req, res) => {
+    try {
+      const { payment_method, amount } = req.body;
+  
+      // Create a PaymentIntent using the PaymentMethod ID
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method: payment_method,
+        confirmation_method: 'manual',
+        confirm: true,
+        return_url: 'https://www.aiche.org/sites/default/files/styles/chenected_lead_image/public/images/Chenected/lead/untitleddesign31.png?itok=QfNLTjZK'
+      });
+  
+      console.log('PaymentIntent:', paymentIntent);
+      return res.status(200).json({ success: true, paymentIntent });
+    } catch (error) {
+      console.error('Error processing payment:', error.message);
+      return res.status(500).json({ error: 'Error processing payment' });
+    }
+  });
+  
+  
 app.listen(8000, () => {
   console.log("SERVER LISTEING SUCCESS!---✅✅✅✅✅8000");
 });
