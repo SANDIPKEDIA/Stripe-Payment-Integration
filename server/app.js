@@ -89,20 +89,7 @@ app.post('/api/charge', async (req, res) => {
       return res.status(500).json({ error: 'Error creating PaymentIntent' });
     }
   });
-  app.post('/api/confirm-payment', async (req, res) => {
-    try {
-      const { paymentIntentId } = req.body;
-  
-      // Use the secret key to confirm the PaymentIntent
-      const paymentIntent = await stripe.paymentIntents.confirm(paymentIntentId);
-  
-      // Handle the paymentIntent status (success, requires_action, etc.)
-      return res.status(200).json({ success: true, paymentIntent });
-    } catch (error) {
-      console.error('Error confirming PaymentIntent:', error.message);
-      return res.status(500).json({ error: 'Error confirming PaymentIntent' });
-    }
-  });
+
   
   
 app.listen(8000, () => {

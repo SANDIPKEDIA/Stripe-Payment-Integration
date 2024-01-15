@@ -7,24 +7,24 @@ const CheckoutForm = () => {
   const [loading, setLoading] = useState(false);
   const [clientSecret, setClientSecret] = useState('');
 
-  useEffect(() => {
-    // Fetch the client secret from your server when the component mounts
-    fetch('http://localhost:8000/api/get-client-secret', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ amount: 1000 }), // Adjust the amount as needed
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setClientSecret(data.clientSecret);
-      })
-      .catch((error) => {
-        console.error('Error fetching client secret:', error);
-      });
-  }, []);
-// ... (previous code)
+//   useEffect(() => {
+//     // Fetch the client secret from your server when the component mounts
+//     fetch('http://localhost:8000/api/get-client-secret', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({ amount: 1000 }), // Adjust the amount as needed
+//     })
+//       .then((response) => response.json())
+//       .then((data) => {
+//         setClientSecret(data.clientSecret);
+//       })
+//       .catch((error) => {
+//         console.error('Error fetching client secret:', error);
+//       });
+//   }, []);
+// // ... (previous code)
 
 const handleSubmit = async (event) => {
     event.preventDefault();
