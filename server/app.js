@@ -75,11 +75,23 @@ app.post('/api/charge', async (req, res) => {
   app.post('/api/get-client-secret', async (req, res) => {
     try {
       const { amount } = req.body;
-  
       const paymentIntent = await stripe.paymentIntents.create({
+        description: 'Software development services',
+        // shipping: {
+        //   name: 'Sandip Kedia Test',
+        //   address: {
+        //     line1: '510 Townsend St',
+        //     postal_code: '733129',
+        //     city: 'Kaliyaganj',
+        //     state: 'WB',
+        //     country: 'IN',
+        //   },
+        // },
+        customer:"cus_PNbDfoQf0Z3XPQ",
         amount: amount,
-        currency: 'usd',
+        currency: 'inr',
         confirmation_method: 'automatic',
+        description:"This is test payment"
       });
   
       const clientSecret = paymentIntent.client_secret;

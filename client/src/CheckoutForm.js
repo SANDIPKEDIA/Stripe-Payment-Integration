@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { useNavigate } from 'react-router-dom';
 
 const CheckoutForm = () => {
+  const navigate = useNavigate()
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -52,10 +54,14 @@ const handleSubmit = async (event) => {
   
       if (error) {
         console.error(error);
+        navigate('/failed')
         setLoading(false);
       } else {
         // Handle the paymentIntent status as needed
         console.log('PaymentIntent status:', paymentIntent.status);
+        if(paymentIntent.status==="succeeded"){
+          navigate('/success')
+        }
         setLoading(false);
       }
     } catch (error) {
